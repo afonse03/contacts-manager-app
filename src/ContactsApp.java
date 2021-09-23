@@ -35,7 +35,26 @@ public class ContactsApp {
             ioe.printStackTrace();
         }
     }
+    public static List<Contact> createContactsObject(){
+        List<Contact> contacts = new ArrayList<>();
+        try {
+            Path pathToOurFile = Paths.get("src/data", "contacts.txt");
+            List<String> contactsStringList = Files.readAllLines(pathToOurFile);
+
+            for (String contact : contactsStringList){
+                Contact contact1 = new Contact(contact.substring(0, contact.lastIndexOf(" ")),
+                        Long.parseLong(contact.substring(contact.lastIndexOf(" ") + 1, contact.length())));
+                contacts.add(contact1);
+            }
+        } catch (IOException ioe){
+            ioe.printStackTrace();
+        }
+        return contacts;
+    }
     public static void mainMenu(){
+//        Creates contact list by looping through the contact.txt file
+        List<Contact> contactsList = createContactsObject();
+
         Scanner sc = new Scanner(System.in);
         System.out.println("1. View contacts.");
         System.out.println("2. Add a new contact.");
@@ -49,6 +68,7 @@ public class ContactsApp {
         }catch (Exception e){
             e.printStackTrace();
             mainMenu();
+            return;
         };
         if (input == 1){
             Path pathToOurFile = Paths.get("src/data", "contacts.txt");
@@ -62,18 +82,43 @@ public class ContactsApp {
                 System.out.println(contact);
             }
         } else if (input == 2){
+            System.out.println("Enter the first and last name (FirstName Lastname): ");
+            String fullName;
+            sc.nextLine();
+            fullName = sc.nextLine();
+            if (fullName.contains(" ")){
+                System.out.println("Enter the phone number: ");
+                long number;
+                try{
+                    number = sc.nextLong();
+                    contactsList.add(new Contact(fullName, number));
+                    System.out.println("Successfully added contact!");
+                }catch (Exception e){
+                    e.printStackTrace();
+                    System.out.println("Not a number!");
+                    mainMenu();
+                    return;
+                };
+            } else {
+                System.out.println("Not a valid name!");
+                mainMenu();
+                return;
+            }
 
         } else if (input == 3){
 
         } else if (input == 4){
 
         } else if (input == 5){
-
+            return;
         } else {
             System.out.println("Invalid input.");
             mainMenu();
+            return;
         }
+        mainMenu();
     }
+
     public static void main(String[] args) {
         initializeFiles();
         mainMenu();
