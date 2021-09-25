@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -51,7 +52,9 @@ public class ContactsApp {
         }
         return contacts;
     }
+
     public static void mainMenu(){
+        Path pathToOurFile = Paths.get("src/data", "contacts.txt");
 //        Creates contact list by looping through the contact.txt file
         List<Contact> contactsList = createContactsObject();
 
@@ -71,7 +74,6 @@ public class ContactsApp {
             return;
         };
         if (input == 1){
-            Path pathToOurFile = Paths.get("src/data", "contacts.txt");
             List<String> contactsInTheFile = new ArrayList<>();
             try {
                 contactsInTheFile = Files.readAllLines(pathToOurFile);
@@ -99,14 +101,40 @@ public class ContactsApp {
                     mainMenu();
                     return;
                 };
+                try {
+                    Files.writeString(pathToOurFile, "\n" + fullName + " " + number, StandardOpenOption.APPEND);
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
             } else {
                 System.out.println("Not a valid name!");
                 mainMenu();
                 return;
             }
 
-        } else if (input == 3){
 
+        } else if (input == 3){
+            System.out.println("Enter the name of who you want to search for: ");
+            sc.nextLine(); // fixes the scanner bug
+            String searchName = sc.nextLine();
+            List<String> contactsInTheFile = new ArrayList<>();
+            try {
+                contactsInTheFile = Files.readAllLines(pathToOurFile);
+            } catch (IOException ioe){
+                ioe.printStackTrace();
+            }
+            int count = 1;
+            boolean nameFound = false;
+            for (String contact : contactsInTheFile){
+                if (contact.contains(searchName)) {
+                    System.out.println("Contact " + count + ": " + contact);
+                    count++;
+                    nameFound = true;
+                }
+            }
+            if (!nameFound) {
+                System.out.println("Name not found.");
+            }
         } else if (input == 4){
 
         } else if (input == 5){
