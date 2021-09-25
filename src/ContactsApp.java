@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -36,6 +37,7 @@ public class ContactsApp {
             ioe.printStackTrace();
         }
     }
+//    Create contacts list from contacts.txt
     public static List<Contact> createContactsObject(){
         List<Contact> contacts = new ArrayList<>();
         try {
@@ -52,7 +54,6 @@ public class ContactsApp {
         }
         return contacts;
     }
-
     public static void mainMenu(){
         Path pathToOurFile = Paths.get("src/data", "contacts.txt");
 //        Creates contact list by looping through the contact.txt file
@@ -73,6 +74,7 @@ public class ContactsApp {
             mainMenu();
             return;
         };
+//        Display all contacts
         if (input == 1){
             List<String> contactsInTheFile = new ArrayList<>();
             try {
@@ -83,6 +85,7 @@ public class ContactsApp {
             for (String contact : contactsInTheFile){
                 System.out.println(contact);
             }
+//            Adds a contact
         } else if (input == 2){
             System.out.println("Enter the first and last name (FirstName Lastname): ");
             String fullName;
@@ -111,8 +114,7 @@ public class ContactsApp {
                 mainMenu();
                 return;
             }
-
-
+//            Searches for contact
         } else if (input == 3){
             System.out.println("Enter the name of who you want to search for: ");
             sc.nextLine(); // fixes the scanner bug
@@ -136,7 +138,40 @@ public class ContactsApp {
                 System.out.println("Name not found.");
             }
         } else if (input == 4){
-
+            System.out.println("Enter the name of the person who you want to delete: ");
+            sc.nextLine(); // fixes the scanner bug
+            String searchName = sc.nextLine();
+            List<String> contactsInTheFile = new ArrayList<>();
+            try {
+                contactsInTheFile = Files.readAllLines(pathToOurFile);
+            } catch (IOException ioe){
+                ioe.printStackTrace();
+            }
+            int count = 1;
+            int iterator = 0;
+            HashMap<String, Integer>contactIndex = new HashMap<>();
+            boolean nameFound = false;
+            for (String contact : contactsInTheFile){
+                if (contact.contains(searchName)) {
+//                    System.out.println("[" + count + "]" + "Contact: " + contact);
+                    count++;
+                    nameFound = true;
+                    contactIndex.put(contact, iterator);
+                }
+                iterator++;
+            }
+            if (!nameFound) {
+                System.out.println("Name not found.");
+            } else {
+                int count2 = 1;
+                for (String contact : contactIndex.keySet()){
+//                    System.out.println(contactIndex.get(contact));
+                    System.out.println("[" + contactIndex.get(contact) + "] " + contact);
+                    count++;
+                }
+                System.out.println("Who do you want to delete?");
+                int selection = sc.nextInt();
+            }
         } else if (input == 5){
             return;
         } else {
