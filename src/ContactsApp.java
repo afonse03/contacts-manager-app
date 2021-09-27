@@ -36,6 +36,7 @@ public class ContactsApp {
             ioe.printStackTrace();
         }
     }
+//    Create contacts list from contacts.txt
     public static List<Contact> createContactsObject(){
         List<Contact> contacts = new ArrayList<>();
         try {
@@ -52,7 +53,6 @@ public class ContactsApp {
         }
         return contacts;
     }
-
     public static void mainMenu(){
         Path pathToOurFile = Paths.get("src/data", "contacts.txt");
 //        Creates contact list by looping through the contact.txt file
@@ -73,27 +73,26 @@ public class ContactsApp {
             mainMenu();
             return;
         };
+//        Display all contacts
         if (input == 1){
-            List<String> contactsInTheFile = new ArrayList<>();
-            try {
-                contactsInTheFile = Files.readAllLines(pathToOurFile);
-            } catch (IOException ioe){
-                ioe.printStackTrace();
+            System.out.println("");
+            System.out.printf("%-19s%s%s\n","Name", "| ", "Phone number");
+            System.out.println("--------------------------------");
+            for (Contact contact : contactsList){
+//                System.out.println(contact.returnContact());
+                System.out.printf( "%-19s%s%s\n", contact.getName(),"| ", contact.getNumber() );
             }
-            for (String contact : contactsInTheFile){
-                System.out.println(contact);
-            }
+//            Adds a contact
         } else if (input == 2){
             System.out.println("Enter the first and last name (FirstName Lastname): ");
-            String fullName;
+            Contact contact = new Contact();
             sc.nextLine();
-            fullName = sc.nextLine();
-            if (fullName.contains(" ")){
+            contact.setName(sc.nextLine());
+            if (contact.getName().contains(" ")){
                 System.out.println("Enter the phone number: ");
-                long number;
                 try{
-                    number = sc.nextLong();
-                    contactsList.add(new Contact(fullName, number));
+                    contact.setNumber(sc.nextLong());
+                    contactsList.add(contact);
                     System.out.println("Successfully added contact!");
                 }catch (Exception e){
                     e.printStackTrace();
@@ -102,7 +101,7 @@ public class ContactsApp {
                     return;
                 };
                 try {
-                    Files.writeString(pathToOurFile, "\n" + fullName + " " + number, StandardOpenOption.APPEND);
+                    Files.writeString(pathToOurFile, "\n" + contact.returnContact(), StandardOpenOption.APPEND);
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
@@ -111,33 +110,80 @@ public class ContactsApp {
                 mainMenu();
                 return;
             }
-
-
+//            Searches for contact
         } else if (input == 3){
             System.out.println("Enter the name of who you want to search for: ");
             sc.nextLine(); // fixes the scanner bug
             String searchName = sc.nextLine();
-            List<String> contactsInTheFile = new ArrayList<>();
-            try {
-                contactsInTheFile = Files.readAllLines(pathToOurFile);
-            } catch (IOException ioe){
-                ioe.printStackTrace();
-            }
-            int count = 1;
-            boolean nameFound = false;
-            for (String contact : contactsInTheFile){
-                if (contact.contains(searchName)) {
-                    System.out.println("Contact " + count + ": " + contact);
+            int count = 0;
+            for (Contact contact : contactsList){
+                if (contact.getName().toLowerCase().contains(searchName.toLowerCase())) {
                     count++;
-                    nameFound = true;
+                    System.out.println("Contact " + count + ": " + contact.returnContact());
                 }
             }
-            if (!nameFound) {
+            if (count == 0) {
                 System.out.println("Name not found.");
             }
-        } else if (input == 4){
-
+//            Delete a contact
+        } else if (input == 4) {
+            System.out.println("Name  | Phone number");
+            System.out.println("--------------------");
+            int indexNumber = 0;
+            for (Contact contact : contactsList) {
+                System.out.println("[" + indexNumber + "]" + contact.returnContact());
+                indexNumber++;
+            }
+            System.out.println("Enter the number of the person you would like to delete: ");
+            sc.nextLine(); // fixes the scanner bug
+            int selection;
+            try {
+                selection = sc.nextInt();
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Not a valid selection!");
+                mainMenu();
+                return;
+            }
+            try {
+                System.out.println("Removing " + contactsList.get(selection).getName());
+                contactsList.remove(selection);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Invalid selection!");
+                mainMenu();
+                return;
+            }
+            try {
+                Files.delete(pathToOurFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                Files.createFile(pathToOurFile);
+            } catch (IOException ioe) {
+                System.out.println("There was a problem!");
+                ioe.printStackTrace();
+            }
+            int count3 = 0;
+            for (Contact contact : contactsList) {
+                if (count3 == 0) {
+                    try {
+                        Files.writeString(pathToOurFile, contact.returnContact(), StandardOpenOption.APPEND);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    try {
+                        Files.writeString(pathToOurFile, "\n" + contact.returnContact(), StandardOpenOption.APPEND);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                count3++;
+            }
         } else if (input == 5){
+            System.out.println("Exiting...");
             return;
         } else {
             System.out.println("Invalid input.");
