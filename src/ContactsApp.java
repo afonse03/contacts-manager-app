@@ -141,36 +141,59 @@ public class ContactsApp {
             System.out.println("Enter the name of the person who you want to delete: ");
             sc.nextLine(); // fixes the scanner bug
             String searchName = sc.nextLine();
-            List<String> contactsInTheFile = new ArrayList<>();
-            try {
-                contactsInTheFile = Files.readAllLines(pathToOurFile);
-            } catch (IOException ioe){
-                ioe.printStackTrace();
-            }
-            int count = 1;
-            int iterator = 0;
-            HashMap<String, Integer>contactIndex = new HashMap<>();
+            int lineIndex = 0;
+            HashMap<Integer, String>searchContactIndex = new HashMap<>();
             boolean nameFound = false;
-            for (String contact : contactsInTheFile){
-                if (contact.contains(searchName)) {
-//                    System.out.println("[" + count + "]" + "Contact: " + contact);
-                    count++;
+            for (Contact contact : contactsList){
+                if (contact.getName().contains(searchName)) {
                     nameFound = true;
-                    contactIndex.put(contact, iterator);
+                    searchContactIndex.put(lineIndex, contact.getName() + " " + contact.getNumber());
                 }
-                iterator++;
+                lineIndex++;
             }
             if (!nameFound) {
                 System.out.println("Name not found.");
             } else {
                 int count2 = 1;
-                for (String contact : contactIndex.keySet()){
-//                    System.out.println(contactIndex.get(contact));
-                    System.out.println("[" + contactIndex.get(contact) + "] " + contact);
-                    count++;
+                for (int index : searchContactIndex.keySet()){
+                    System.out.println("[" + index + "] " + searchContactIndex.get(index));
                 }
                 System.out.println("Who do you want to delete?");
                 int selection = sc.nextInt();
+                if (searchContactIndex.containsKey(selection)){
+                    try {
+                        Files.delete(pathToOurFile);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        Files.createFile(pathToOurFile);
+                    } catch (IOException ioe) {
+                        System.out.println("There was a problem!");
+                        ioe.printStackTrace();
+                    }
+                    System.out.println("Removing " + searchContactIndex.get(selection));
+                    contactsList.remove(selection);
+                    int count3 = 0;
+                    for (Contact contact : contactsList) {
+                        if (count3 == 0){
+                            try {
+                                Files.writeString(pathToOurFile, contact.getName() + " " + contact.getNumber(), StandardOpenOption.APPEND);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            try {
+                                Files.writeString(pathToOurFile, "\n" + contact.getName() + " " + contact.getNumber(), StandardOpenOption.APPEND);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        count3 ++;
+                    }
+                } else {
+                    System.out.println("Name not found!");
+                }
             }
         } else if (input == 5){
             return;
