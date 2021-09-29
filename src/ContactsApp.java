@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 public class ContactsApp {
     public static void initializeFiles(){
-//        Check directory. If it doesnt exist, create it.
+//        Check directory. If it doesnt exist, create it. //
         Path pathToOurDataDir = Paths.get("src/data");
         try {
            if (Files.notExists(pathToOurDataDir)){
